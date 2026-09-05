@@ -4,33 +4,52 @@ DeepSeek Harness (DSH) 配置导出/导入插件
 
 ## 功能
 
-- 📦 **导出配置** - 将 DSH 配置文件、插件、Agent 预设和会话导出为 ZIP 压缩包
+-  **导出配置** - 将 DSH 配置文件、插件、Agent 预设和会话导出为 ZIP 压缩包
 - 📥 **导入配置** - 从 ZIP 压缩包恢复 DSH 配置
-- ⚙️ **设置页面集成** - 在 DSH 设置页面中提供友好的 GUI 界面
+- ️ **设置页面集成** - 在 DSH 设置页面中提供友好的 GUI 界面
 - 🎯 **选择性导出** - 可选择导出配置文件、插件清单、Agent 预设、会话数据
 
 ## 安装
 
 ### 方法 1: 命令行安装（推荐）
 
-```bash
-# macOS
-DSH_HOME="$HOME/Library/Application Support/com.yuze.harness/dsh"
-PLUGIN_DIR="$DSH_HOME/profiles/web/node_modules"
+首先找到你的 DSH 配置目录：
 
-# Linux
+```bash
+# 官方 DeepSeek Harness
+# macOS: ~/Library/Application Support/com.deepseek.harness/dsh
+# Linux: ~/.dsh
+
+# Yuze Harness 等分支版本
+# macOS: ~/Library/Application Support/com.yuze.harness/dsh
+# Linux: ~/.dsh
+
+# 如果设置了环境变量，使用环境变量
+echo $DSH_HOME
+```
+
+然后执行安装：
+
+```bash
+# 设置 DSH 配置目录（根据你的实际安装修改）
+# 官方 DSH (macOS)
+DSH_HOME="$HOME/Library/Application Support/com.deepseek.harness/dsh"
+
+# 官方 DSH (Linux)
 # DSH_HOME="$HOME/.dsh"
-# PLUGIN_DIR="$DSH_HOME/profiles/web/node_modules"
+
+# Yuze Harness (macOS)
+# DSH_HOME="$HOME/Library/Application Support/com.yuze.harness/dsh"
 
 # 克隆插件
+PLUGIN_DIR="$DSH_HOME/profiles/web/node_modules"
 git clone https://github.com/Hickey-Yuze/dsh-harness-exporter.git "$PLUGIN_DIR/dsh-harness-exporter"
 
 # 编辑 profile package.json，添加插件到 bundles 列表
 # 文件位置：$DSH_HOME/profiles/web/package.json
-# 在 "dsh.profile.bundles" 数组中添加 "dsh-harness-exporter"
 ```
 
-编辑 `$DSH_HOME/profiles/web/package.json`：
+编辑 `$DSH_HOME/profiles/web/package.json`，在 `dsh.profile.bundles` 数组中添加 `"dsh-harness-exporter"`：
 
 ```json
 {
@@ -55,12 +74,15 @@ git clone https://github.com/Hickey-Yuze/dsh-harness-exporter.git "$PLUGIN_DIR/d
 2. 解压到 DSH 插件目录：
 
 ```bash
-# macOS
-cd ~/Library/Application\ Support/com.yuze.harness/dsh/profiles/web/node_modules/
-unzip /path/to/dsh-harness-exporter.zip
+# 官方 DSH (macOS)
+cd ~/Library/Application\ Support/com.deepseek.harness/dsh/profiles/web/node_modules/
 
-# Linux
-cd ~/.dsh/profiles/web/node_modules/
+# 官方 DSH (Linux)
+# cd ~/.dsh/profiles/web/node_modules/
+
+# Yuze Harness (macOS)
+# cd ~/Library/Application\ Support/com.yuze.harness/dsh/profiles/web/node_modules/
+
 unzip /path/to/dsh-harness-exporter.zip
 ```
 
@@ -102,7 +124,7 @@ unzip /path/to/dsh-harness-exporter.zip
 
 ```
 dsh-export-2026-09-05T13-11-46/
-├── configs/              # 配置文件
+── configs/              # 配置文件
 │   ├── profiles_web_cordis.yml
 │   ├── profiles_web_cordis.patch.yml
 │   ├── profiles_web_package.json
@@ -113,7 +135,7 @@ dsh-export-2026-09-05T13-11-46/
 ├── presets/              # Agent 预设
 │   ├── minimal.yml
 │   ├── standard.yml
-│   ── ...
+│   └── ...
 ├── sessions/             # 会话数据
 │   ├── session-xxx/
 │   │   ├── session.jsonl
@@ -147,7 +169,7 @@ rm -rf "$DSH_HOME/profiles/web/node_modules/dsh-harness-exporter"
 
 ```
 dsh-harness-exporter/
-── package.json          # 插件配置（dsh.bundle 格式）
+├── package.json          # 插件配置（dsh.bundle 格式）
 ├── index.mjs             # 主入口（重新导出 host）
 ├── cordis.patch.yml      # Cordis 注册配置
 ├── README.md             # 说明文档
@@ -163,8 +185,15 @@ dsh-harness-exporter/
 git clone https://github.com/Hickey-Yuze/dsh-harness-exporter.git
 cd dsh-harness-exporter
 
-# 2. 创建符号链接到 DSH 插件目录（macOS）
-DSH_HOME="$HOME/Library/Application Support/com.yuze.harness/dsh"
+# 2. 创建符号链接到 DSH 插件目录
+# 根据你的 DSH 版本修改路径：
+
+# 官方 DSH (macOS)
+DSH_HOME="$HOME/Library/Application Support/com.deepseek.harness/dsh"
+
+# Yuze Harness (macOS)
+# DSH_HOME="$HOME/Library/Application Support/com.yuze.harness/dsh"
+
 ln -s "$(pwd)" "$DSH_HOME/profiles/web/node_modules/dsh-harness-exporter"
 
 # 3. 编辑 profile package.json 添加插件（见安装说明）
@@ -186,6 +215,18 @@ ln -s "$(pwd)" "$DSH_HOME/profiles/web/node_modules/dsh-harness-exporter"
 
 ## 常见问题
 
+### Q: 我的 DSH 配置目录在哪里？
+
+A: 取决于你的 DSH 版本：
+
+| DSH 版本 | macOS 路径 | Linux 路径 |
+|---------|-----------|-----------|
+| 官方 DeepSeek Harness | `~/Library/Application Support/com.deepseek.harness/dsh` | `~/.dsh` |
+| Yuze Harness | `~/Library/Application Support/com.yuze.harness/dsh` | `~/.dsh` |
+| 其他分支 | 查看应用设置或环境变量 `$DSH_HOME` | 查看环境变量 `$DSH_HOME` |
+
+你也可以在 DSH 设置页面点击 **"打开配置文件"** 按钮，会打开配置目录。
+
 ### Q: 导出路径应该填什么？
 
 A: 可以填任意有写入权限的目录路径，例如：
@@ -197,7 +238,7 @@ A: 可以填任意有写入权限的目录路径，例如：
 
 A: 由于浏览器安全限制，文件选择器无法获取完整路径。你需要：
 1. 将 ZIP 文件放到默认导出目录（`DSH_HOME/exports/`）
-2. 在输入框中输入完整路径，例如：`/Users/yourname/Library/Application Support/com.yuze.harness/dsh/exports/dsh-export-2026-09-05T13-11-46.zip`
+2. 在输入框中输入完整路径，例如：`/Users/yourname/Library/Application Support/com.deepseek.harness/dsh/exports/dsh-export-2026-09-05T13-11-46.zip`
 
 ### Q: 导入后配置没有生效？
 
@@ -205,7 +246,10 @@ A: 导入完成后需要 **完全退出并重启 DSH** 才能使配置生效。
 
 ### Q: 支持哪些 DSH 版本？
 
-A: 本插件适用于 DSH 0.1.x 及以上版本。
+A: 本插件适用于 DSH 0.1.x 及以上版本，包括：
+- 官方 DeepSeek Harness
+- Yuze Harness
+- 其他基于 DSH 的分支版本
 
 ## License
 
