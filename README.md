@@ -11,7 +11,30 @@ DeepSeek Harness (DSH) 配置导出/导入插件
 
 ## 安装
 
-### 方法 1: 一键安装（推荐）
+### 方法 1: 使用 dsh-plugin 命令（推荐）
+
+首先安装 `dsh-plugin` 命令行工具：
+
+```bash
+# 下载并安装 dsh-plugin 到 /usr/local/bin
+curl -fsSL https://raw.githubusercontent.com/Hickey-Yuze/dsh-harness-exporter/main/dsh-plugin.sh -o /usr/local/bin/dsh-plugin
+chmod +x /usr/local/bin/dsh-plugin
+```
+
+然后安装插件：
+
+```bash
+dsh-plugin add dsh-harness-exporter
+```
+
+其他命令：
+
+```bash
+dsh-plugin list              # 列出已安装插件
+dsh-plugin remove dsh-harness-exporter  # 卸载插件
+```
+
+### 方法 2: 一键安装脚本
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Hickey-Yuze/dsh-harness-exporter/main/install.sh | bash
@@ -22,7 +45,7 @@ curl -fsSL https://raw.githubusercontent.com/Hickey-Yuze/dsh-harness-exporter/ma
 - 克隆插件到正确位置
 - 编辑 `package.json` 添加插件配置
 
-### 方法 2: 命令行安装
+### 方法 3: 手动安装
 
 首先找到你的 DSH 配置目录：
 
@@ -79,7 +102,7 @@ git clone https://github.com/Hickey-Yuze/dsh-harness-exporter.git "$PLUGIN_DIR/d
 }
 ```
 
-### 方法 3: 手动安装
+### 方法 4: 手动安装
 
 1. 下载 [最新 Release](https://github.com/Hickey-Yuze/dsh-harness-exporter/releases) 的 ZIP 包
 2. 解压到 DSH 插件目录：
@@ -97,9 +120,9 @@ cd ~/Library/Application\ Support/com.deepseek.harness/dsh/profiles/web/node_mod
 unzip /path/to/dsh-harness-exporter.zip
 ```
 
-3. 按照方法 1 中的步骤编辑 `package.json`
+3. 按照方法 3 中的步骤编辑 `package.json`
 
-### 方法 4: 使用插件市场（如果可用）
+### 方法 5: 使用插件市场（如果可用）
 
 在 DSH 插件市场中搜索 `dsh-harness-exporter` 并安装。
 
