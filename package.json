@@ -8,7 +8,9 @@
     ".": {
       "default": "./index.mjs"
     },
-    "./client": "./lib/client.js"
+    "./client": {
+      "default": "./lib/client.js"
+    }
   },
   "dsh": {
     "bundle": {
