@@ -1,0 +1,24 @@
+{
+  "name": "dsh-harness-exporter",
+  "version": "1.0.0",
+  "description": "Export all DSH configuration files, plugins, agent presets, and sessions into a downloadable tar.gz archive",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": {
+      "default": "./index.mjs"
+    },
+    "./client": "./lib/client.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-slots"
+      ],
+      "platform": "web"
+    }
+  }
+}
