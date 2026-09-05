@@ -11,7 +11,18 @@ DeepSeek Harness (DSH) 配置导出/导入插件
 
 ## 安装
 
-### 方法 1: 命令行安装（推荐）
+### 方法 1: 一键安装（推荐）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Hickey-Yuze/dsh-harness-exporter/main/install.sh | bash
+```
+
+脚本会自动：
+- 查找你的 DSH 配置目录（支持官方 DSH、Yuze Harness 等）
+- 克隆插件到正确位置
+- 编辑 `package.json` 添加插件配置
+
+### 方法 2: 命令行安装
 
 首先找到你的 DSH 配置目录：
 
@@ -68,7 +79,7 @@ git clone https://github.com/Hickey-Yuze/dsh-harness-exporter.git "$PLUGIN_DIR/d
 }
 ```
 
-### 方法 2: 手动安装
+### 方法 3: 手动安装
 
 1. 下载 [最新 Release](https://github.com/Hickey-Yuze/dsh-harness-exporter/releases) 的 ZIP 包
 2. 解压到 DSH 插件目录：
@@ -88,9 +99,28 @@ unzip /path/to/dsh-harness-exporter.zip
 
 3. 按照方法 1 中的步骤编辑 `package.json`
 
-### 方法 3: 使用插件市场（如果可用）
+### 方法 4: 使用插件市场（如果可用）
 
 在 DSH 插件市场中搜索 `dsh-harness-exporter` 并安装。
+
+## 卸载
+
+### 一键卸载
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Hickey-Yuze/dsh-harness-exporter/main/uninstall.sh | bash
+```
+
+### 手动卸载
+
+1. 编辑 `$DSH_HOME/profiles/web/package.json`，从 `bundles` 数组中移除 `"dsh-harness-exporter"`
+2. 删除插件目录：
+
+```bash
+rm -rf "$DSH_HOME/profiles/web/node_modules/dsh-harness-exporter"
+```
+
+3. 重启 DSH
 
 ## 使用方法
 
@@ -151,17 +181,6 @@ dsh-export-2026-09-05T13-11-46/
 ```
 export_harness(outputDir: "/path/to/output", options: { configs: true, plugins: true, presets: true, sessions: true })
 ```
-
-## 卸载
-
-1. 编辑 `$DSH_HOME/profiles/web/package.json`，从 `bundles` 数组中移除 `"dsh-harness-exporter"`
-2. 删除插件目录：
-
-```bash
-rm -rf "$DSH_HOME/profiles/web/node_modules/dsh-harness-exporter"
-```
-
-3. 重启 DSH
 
 ## 开发
 
