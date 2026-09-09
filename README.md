@@ -220,8 +220,10 @@ dsh-harness-exporter/
 - **Client**: React (via `window.__ModuleLoader__`)
   - `ctx.slots.inject('settings.section')` - 设置页面集成
 - **API**:
+  - `GET /api-export/defaults` - 默认路径（浏览器无 process.env，由 Host 提供）
   - `POST /api-export/export` - 导出端点
-  - `POST /api-export/import` - 导入端点
+  - `POST /api-export/import` - 导入端点（服务器本地路径）
+  - `POST /api-export/import-upload` - 导入端点（客户端上传 zip 字节流 base64）
 
 ## 常见问题
 
@@ -261,7 +263,7 @@ dsh-harness-exporter/
 
 ### Q: 导入时提示"请选择导入路径"？
 
-由于浏览器安全限制，文件选择器无法获取完整路径。把 ZIP 文件放到默认导出目录（`$DSH_HOME/exports/`），然后输入完整路径或文件名。
+推荐直接点击 **"选择 zip 文件..."**：插件会把所选文件的内容直接上传给 Host 处理，不需要任何路径（浏览器无法提供所选文件的完整路径）。也可以手动输入 zip 的完整路径。
 
 ### Q: 导入后配置没有生效？
 
