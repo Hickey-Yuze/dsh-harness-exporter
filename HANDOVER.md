@@ -112,6 +112,26 @@ await entity.attachSession(sessionId);
 - ⇒ 取消归档的唯一途径：**服务不运行时（或保证重启前无任何注册表写入）改
   注册表文件 + 重启**
 
+### 2.6 Agent 预设的真实模型（曾是隐性坑）
+
+- **一个预设 = 一个目录**，目录名即预设 id（必须匹配
+  `PRESET_ID = /^[a-z0-9][a-z0-9-]*$/`），目录内：
+  - `agent.cordis.yml` —— 组合文件（COMPOSITION_FILE，缺失即 broken 行）
+  - `preset.yml` —— 可选显示元数据（仅展示文本，id/trust 不可写）
+  - `skills/**` —— 预设自带的技能
+- **用户根：`<dshHome>/.agent-presets/`（点前缀！）**，trust=user；
+  出厂预设打包在 `dsh-agent-presets/presets/` 内（cordis/minimal/ptc/standard），
+  trust=system；部署还可经插件 `config.roots` 配置额外根；
+  名册按根顺序"先到先得"同一 id
+- **`scanRoot` 只认子目录**：根下的平面 `<id>.yml` 被完全忽略
+  （`child.isDirectory()` 过滤）。`<dshHome>/agent-presets/`（无点）里的
+  平面 .yml 是部署遗留物——运行时不读它们，本插件早期版本曾误把预设
+  写到这里导致"导入成功但不显示"
+- **discovery 每次名册读取都重新扫描根目录**：写入新预设后**立即可见，
+  无需重启**
+- ⇒ 导出经官方 `agentPresets` 服务（list 带 path → 整目录暂存）；
+  导入写 `.agent-presets/<id>/`（目录式），旧平面文件做布局转换
+
 ---
 
 ## 3. 导入流程设计（现行实现）
@@ -127,7 +147,11 @@ await entity.attachSession(sessionId);
      · 源注册表记为活跃成员的会话 → 从目标 archivedSessionIds 移除（反归档）
    - package.json / pnpm-lock.yaml / pnpm-workspace.yaml → 跳过并计数
      （机器专属，覆盖会毁掉目标机依赖布局）
-4. presets 恢复（文件名 _ ↔ / 还原）
+4. presets 恢复到 `<dshHome>/.agent-presets/<id>/`（目录式，见 2.6）：
+   - 新导出的目录条目整树复制（agent.cordis.yml + preset.yml + skills/**）
+   - 旧版平面 `<id>.yml` 转换为 `<id>/agent.cordis.yml`（平面文件运行时不识别）
+   - id 规范化为 `^[a-z0-9][a-z0-9-]*$`，非法 id 跳过计数
+   - discovery 每次名册读取重新扫描 → 恢复后立即可见，无需重启
 5. sessions 恢复：
    - 新布局 sessions/<workspace>/<id>/ 直接遍历两层
    - 旧扁平布局按 manifest 的 id→workspace 映射恢复
@@ -135,7 +159,9 @@ await entity.attachSession(sessionId);
    - 无法识别工作区的会话跳过计数（unknownWorkspaceSessions）
 6. 实时登记：workspaceRegistry.create(path) + attachSession(id)
    （路径不存在的跳过；已登记的跳过——见 2.4 clobber 竞态）
-7. 结果汇报：restored / skipped / merged / unarchived / attachErrors / missingWorkspacePaths
+7. 插件清单：plugins/manifest.json 不自动重装——保存到
+   `exports/restored-plugin-manifest.json` 并在结果中列出待重装清单
+8. 结果汇报：restored / skipped / merged / unarchived / attachErrors / missingWorkspacePaths / pluginList
 ```
 
 ---
@@ -200,6 +226,7 @@ await entity.attachSession(sessionId);
 | `5adcba2` | 缺失工作区路径诊断提示 |
 | `190bcd5` | workspaceRegistry 实时登记（attachSession），立即可见无需重启 |
 | `5872379` | 导入时反归档 + 实时登记跳过已登记会话（防 clobber 回滚） |
+| `b23acc9` | 预设目录式布局（.agent-presets/<id>/）+ 插件清单导入落地 |
 
 ---
 

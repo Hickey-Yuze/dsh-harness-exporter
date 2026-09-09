@@ -140,10 +140,13 @@ dsh-export-2026-09-05T13-11-46/
 │   ├── settings.yaml
 │   ├── storages_workspace.json   # 工作区注册表（导入时按路径合并，不覆盖）
 │   └── ...
-├── plugins/                # 插件清单
+├── plugins/                # 插件清单（不自动重装；导入后清单另存为参考）
 │   └── manifest.json
-├── presets/                # Agent 预设
-│   ├── minimal.yml
+├── presets/                # Agent 预设（目录式布局，与 DSH 实际结构一致）
+│   ├── minimal/            # 每个预设一个目录，导入写到 .agent-presets/<id>/
+│   │   ├── agent.cordis.yml  # 组合文件
+│   │   ├── preset.yml        # 显示元数据（可选）
+│   │   └── skills/           # 预设自带技能（可选）
 │   └── ...
 ├── sessions/               # 会话数据（保持原始工作区布局——身份校验要求）
 │   ├── --C-Users-...-Workspace-Name--/
