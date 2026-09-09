@@ -48,14 +48,31 @@ find_dsh_home() {
     fi
 }
 
+# 选择目标 profile：桌面版 DSH 用 desktop，Web 部署用 web
+# 可用 DSH_PROFILE 环境变量覆盖
+resolve_profile() {
+    local dsh_home=$1
+    if [ -n "$DSH_PROFILE" ]; then
+        echo "$DSH_PROFILE"
+    elif [ -d "$dsh_home/profiles/desktop" ]; then
+        echo "desktop"
+    elif [ -d "$dsh_home/profiles/web" ]; then
+        echo "web"
+    else
+        echo -e "${RED}错误：未找到 $dsh_home/profiles/ 下的 desktop 或 web profile${NC}" >&2
+        exit 1
+    fi
+}
+
 # 安装插件
 install_plugin() {
     local plugin_name=$1
     local dsh_home=$(find_dsh_home)
-    local plugin_dir="$dsh_home/profiles/web/node_modules"
+    local profile=$(resolve_profile "$dsh_home")
+    local plugin_dir="$dsh_home/profiles/$profile/node_modules"
     local plugin_path="$plugin_dir/$plugin_name"
-    
-    echo -e "${GREEN}正在安装插件：$plugin_name${NC}"
+
+    echo -e "${GREEN}正在安装插件：$plugin_name（profile: $profile）${NC}"
     
     # 检查插件是否已安装
     if [ -d "$plugin_path" ]; then
@@ -73,7 +90,7 @@ install_plugin() {
     fi
     
     # 编辑 package.json
-    local package_json="$dsh_home/profiles/web/package.json"
+    local package_json="$dsh_home/profiles/$profile/package.json"
     if [ ! -f "$package_json" ]; then
         echo -e "${RED}错误：package.json 不存在${NC}"
         exit 1
@@ -115,7 +132,8 @@ EOF
 remove_plugin() {
     local plugin_name=$1
     local dsh_home=$(find_dsh_home)
-    local plugin_path="$dsh_home/profiles/web/node_modules/$plugin_name"
+    local profile=$(resolve_profile "$dsh_home")
+    local plugin_path="$dsh_home/profiles/$profile/node_modules/$plugin_name"
     
     echo -e "${YELLOW}正在卸载插件：$plugin_name${NC}"
     
@@ -128,7 +146,7 @@ remove_plugin() {
     fi
     
     # 从 package.json 移除
-    local package_json="$dsh_home/profiles/web/package.json"
+    local package_json="$dsh_home/profiles/$profile/package.json"
     if [ -f "$package_json" ]; then
         python3 << EOF
 import json
@@ -158,9 +176,10 @@ EOF
 # 列出已安装插件
 list_plugins() {
     local dsh_home=$(find_dsh_home)
-    local package_json="$dsh_home/profiles/web/package.json"
-    
-    echo -e "${GREEN}已安装的插件：${NC}"
+    local profile=$(resolve_profile "$dsh_home")
+    local package_json="$dsh_home/profiles/$profile/package.json"
+
+    echo -e "${GREEN}已安装的插件（profile: $profile）：${NC}"
     echo ""
     
     if [ -f "$package_json" ]; then
