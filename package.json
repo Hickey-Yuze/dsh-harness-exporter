@@ -13,6 +13,9 @@
     },
     "./package.json": "./package.json"
   },
+  "dependencies": {
+    "zstd-codec": "^0.1.1"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
