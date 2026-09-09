@@ -14,7 +14,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "zstd-codec": "^0.1.1"
+    "zstd-codec": "^0.1.5"
   },
   "dsh": {
     "bundle": {
