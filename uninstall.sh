@@ -47,7 +47,7 @@ fi
 PROFILE_DIR="$DSH_HOME/profiles/$PROFILE"
 echo "✅ 目标 profile: $PROFILE"
 
-# 3. 删除插件目录（真实目录、符号链接或 junction 均可）
+# 3. 删除 node_modules 内的插件（真实目录、符号链接或 junction 均可）
 PLUGIN_PATH="$PROFILE_DIR/node_modules/dsh-harness-exporter"
 if [ -L "$PLUGIN_PATH" ] || [ -d "$PLUGIN_PATH" ]; then
     echo " 删除插件目录..."
@@ -55,6 +55,16 @@ if [ -L "$PLUGIN_PATH" ] || [ -d "$PLUGIN_PATH" ]; then
     echo "✅ 已删除 $PLUGIN_PATH"
 else
     echo "ℹ️  插件目录不存在，跳过"
+fi
+
+# 3.1 删除插件源目录（install.sh 的克隆位置）
+PLUGIN_SRC="$DSH_HOME/plugins/dsh-harness-exporter"
+if [ -d "$PLUGIN_SRC" ]; then
+    echo " 删除插件源目录..."
+    rm -rf "$PLUGIN_SRC"
+    echo "✅ 已删除 $PLUGIN_SRC"
+else
+    echo "ℹ️  插件源目录不存在，跳过"
 fi
 
 # 4. 从 profile package.json 移除 bundles 条目与依赖声明

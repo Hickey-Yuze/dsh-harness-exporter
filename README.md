@@ -16,6 +16,13 @@ DeepSeek Harness (DSH) / Yuze Harness 配置导出/导入插件
 > **`desktop`** profile；Web 部署加载 **`web`** profile。装错 profile 是插件
 > "装上了但设置页不出现" 的最常见原因。安装脚本会自动检测（desktop 优先），
 > 也可以用 `DSH_PROFILE=web` 强制指定。
+>
+> **不要把插件直接克隆进 `node_modules/`！** 桌面应用启动时，若检测到 profile
+> 依赖布局不兼容（新装机器、node_modules 缺少 `.modules.yaml` 等），会自动用
+> 内置 pnpm 执行 `pnpm install`（profile materialization），**不在
+> package.json 依赖清单里的目录会被 pnpm 直接清除**。安装脚本正是因此把插件
+> 放到 `$DSH_HOME/plugins/` 并以 `link:` 依赖接入 profile——这是 DSH 官方
+> out-of-tree 插件机制的做法，可安全抵御启动迁移。
 
 ### 方法 1: 一键安装脚本（推荐）
 
@@ -29,8 +36,10 @@ curl -fsSL https://raw.githubusercontent.com/Hickey-Yuze/dsh-harness-exporter/ma
 脚本会自动：
 - 查找你的 DSH 配置目录（`$DSH_HOME` → `~/.dsh` → macOS 应用目录）
 - 自动选择 profile（desktop 优先，其次 web）
-- 克隆插件到 profile 的 `node_modules/`（作为真实目录，无需 pnpm）
-- 把插件添加到 profile `package.json` 的 `dsh.profile.bundles`
+- 克隆插件到 `$DSH_HOME/plugins/`（node_modules 之外，防止被 pnpm 迁移清除）
+- 在 profile `package.json` 写入 `link:` 依赖 + `dsh.profile.bundles` 条目
+- 运行 `pnpm install` 让 profile 接管插件（无 pnpm 时自动回退为目录复制并提示）
+- 用 Node 按 DSH 的解析方式验证插件可被解析，失败即报错退出
 
 ### 方法 2: 使用 dsh-plugin 命令
 
@@ -66,7 +75,7 @@ CI=true pnpm install
 # 4. 重启 DSH
 ```
 
-### 方法 4: 手动安装（直接克隆进 node_modules）
+### 方法 4: 手动安装（直接克隆进 node_modules）——仅限 Web 部署或临时测试
 
 ```bash
 DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
@@ -76,6 +85,10 @@ git clone --depth 1 https://github.com/Hickey-Yuze/dsh-harness-exporter.git \
 ```
 
 然后编辑 `$DSH_HOME/profiles/$PROFILE/package.json`，在 `dsh.profile.bundles` 数组中添加 `"dsh-harness-exporter"`，重启 DSH。
+
+> ⚠️ **桌面版慎用此方法**：桌面应用启动时的依赖迁移（自动 `pnpm install`）
+> 会清除不在 `dependencies` 清单里的 node_modules 目录。桌面版请优先使用
+> 方法 1（自动 link 依赖）或方法 3（手动 link + pnpm install）。
 
 ## 卸载
 
@@ -211,6 +224,15 @@ dsh-harness-exporter/
   - `POST /api-export/import` - 导入端点
 
 ## 常见问题
+
+### Q: 重启后插件管理里根本没有这个插件（Host 端没挂载）？
+
+最常见原因：插件目录被 pnpm 启动迁移清除了。桌面应用启动时会对依赖布局
+不兼容的 profile 自动执行 `pnpm install`，裸克隆进 `node_modules/` 的插件
+不在依赖清单里，会被直接删除。解决方法：使用最新版 `install.sh` 重新安装
+（它会把插件放到 `$DSH_HOME/plugins/` 并以 `link:` 依赖接入）。也可以手动
+确认 profile `package.json` 的 `dependencies` 里有
+`"dsh-harness-exporter": "link:<插件绝对路径>"` 且该路径真实存在。
 
 ### Q: 安装后插件出现在插件管理里，但设置页没有入口？
 
