@@ -2,6 +2,9 @@
 
 DeepSeek Harness (DSH) / Yuze Harness 配置导出/导入插件
 
+> 📚 **接手维护前请先读 [HANDOVER.md](HANDOVER.md)**——其中完整记录了 DSH
+> 会话身份/可见性机制、工作区注册表、归档模型，以及全部踩过的坑。
+
 ## 功能
 
 - 📦 **导出配置** - 将 DSH 配置文件、插件、Agent 预设和会话导出为 ZIP 压缩包
@@ -134,21 +137,38 @@ dsh-export-2026-09-05T13-11-46/
 ├── configs/                # 配置文件
 │   ├── profiles_<profile>_cordis.yml
 │   ├── profiles_<profile>_cordis.patch.yml
-│   ├── profiles_<profile>_package.json
 │   ├── settings.yaml
+│   ├── storages_workspace.json   # 工作区注册表（导入时按路径合并，不覆盖）
 │   └── ...
 ├── plugins/                # 插件清单
 │   └── manifest.json
 ├── presets/                # Agent 预设
 │   ├── minimal.yml
 │   └── ...
-├── sessions/               # 会话数据
-│   ├── session-xxx/
-│   │   ├── session.jsonl
-│   │   └── ...
-│   └── manifest.json
+├── sessions/               # 会话数据（保持原始工作区布局——身份校验要求）
+│   ├── --C-Users-...-Workspace-Name--/
+│   │   └── session-xxx/
+│   │       └── session.jsonl.zstd
+│   └── manifest.json       # 会话 id → 工作区 映射
 └── export-summary.json     # 导出摘要
 ```
+
+> **注意**：`package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` 属机器专属
+> 配置，导入时会自动跳过（避免破坏目标机器的依赖布局）。
+
+### 导入后会话如何变得可见
+
+导入完成时插件会做三件事：
+
+1. **实时登记**：通过 DSH 的 `workspaceRegistry` 服务把会话登记到其工作区，
+   **立即生效，无需重启**（前提：会话内嵌 cwd 指向的目录在本机真实存在）
+2. **反归档**：若会话在目标机被归档过，导入会从归档集合中恢复它——**这类
+   会话需要重启 DSH 后才显示**（DSH 没有 unarchive API）
+3. **合并工作区注册表**：按路径合并，绝不覆盖目标机自己的工作区记录
+
+⚠️ **同机多客户端**：插件永远只读写"运行它的那个客户端"的 DSH home。
+同机器上装了多个 DSH/Yuze 客户端时，从 A 客户端导出的内容必须到 **B 客户端的
+设置页**里做导入，否则数据只会写回 A 自己的 home。
 
 ## 命令行工具（Agent 工具）
 
