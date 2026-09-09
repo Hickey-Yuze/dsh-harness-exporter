@@ -1,16 +1,17 @@
 {
   "name": "dsh-harness-exporter",
   "version": "1.0.0",
-  "description": "Export all DSH configuration files, plugins, agent presets, and sessions into a downloadable tar.gz archive",
+  "description": "Export all DSH configuration files, plugins, agent presets, and sessions into a downloadable archive",
   "type": "module",
-  "main": "./index.mjs",
+  "main": "./index.js",
   "exports": {
     ".": {
-      "default": "./index.mjs"
+      "default": "./index.js"
     },
     "./client": {
       "default": "./lib/client.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "dsh": {
     "bundle": {
